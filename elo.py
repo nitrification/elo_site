@@ -47,8 +47,10 @@ def sort_list(list_name):
 #do the thing
 cool_list = make_list()
 for item in cool_list:
- 	print(item)
+	print(item)
 matchup(cool_list)
 sort_list(cool_list)
 for item in cool_list:
 	print(item)
+master_list.append(cool_list)
+#print(master_list)
