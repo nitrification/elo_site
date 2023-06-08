@@ -1,9 +1,0 @@
-{
-	"id" : "testlist",
-	"data" : {
-			"key1" : elorank,
-			"key2" : elorank,
-	},
-	"lastmodified" : randomtime
-}
-	
