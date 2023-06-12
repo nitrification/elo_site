@@ -2,44 +2,69 @@ import random
 import json
 import pprint
 
-#contract:none->list
-#make the list
-def make_list():
-	ranking_list = []
-	make_list = True
+from datetime import datetime, timezone
 
-	while make_list:
-		name = input("Enter name of item to rank, or type 'done' to finish ")
-		if name.lower() == "done":
-			break
-		elo = 1500
-		rank = None
-		item = {"name": name, "elo": elo}
-		ranking_list.append(item)
-	return ranking_list
+#accepts a string which is the items in a list
+#each entry is seperated by a \n character
+#make_list(string data)
+def make_list(rawdata):
+    namelist = rawdata.split("\n")
+    for name in namelist:
+        name = {"name" : name, "elo" : 1500}
+    return namelist 
 
-#contract:int,int->int
 #find expected result
+#expected_result(int self_elo, int foe_elo)
 def expected_result(self_elo, foe_elo):
     return 1 / (1 + 10**((foe_elo - self_elo)/400))
 
 #contract:string,int,string,int->int,int
 #find new rating
-def elo_update(name_1, elo_1, name_2, elo_2):
+#result = 1 = elo1 win, reulst = 0 = elo2 win
+def elo_update(elo_1, elo_2, result):
 	K=30
 	expected = expected_result(elo_1, elo_2)
-	result = int(input("Which do you prefer? Type '1' for " + name_1 + " and type '0' for " + name_2 + " "))
 	return elo_1 + K*(result - expected), elo_2 + K*((1 - result) - (1 - expected))
 
-#contract: string->none
-#match up 2 dictionary entries
-def matchup(list_name):
-    for i, dict in enumerate(list_name):
-        opponents = random.sample(list_name[:i] + list_name[i+1:], 2)
-        for opp in opponents:
-            dict["elo"], opp["elo"] = elo_update(dict["name"], dict["elo"], opp["name"], opp["elo"])
+#scramble the list for matchup
+#scrample(filepath)
+def scramble(path):
+    file = json.loads(open(path, 'r').read())
+    file["status"] = "UPDATE"
+    file["index"] = 0
+    file["data"] = random.shuffle(file["data"])
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+    file = json.dumps(file)
+    with open(path, 'w') as wpath:
+        wpath.write(file)
+        wpath.close()
+    return
 
-#contract: string->none
+#updates the list, happens in packets
+def update_list(path, winid):
+    file = json.loads(open(path, 'r').read())
+    if (file["status"] != "UPDATE"):
+        return "NOT_UPDATE_MODE"
+    data = file["data"]
+    index = file["index"]
+    data[index]["elo"], data[(index+1)%file["size"]]["elo"] = elo_update(data[index]["elo"], data[(index+1)%file["size"]]["elo"], winid)
+    file["data"] = data
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+    if (index+2)+1 > file["size"]:
+        file["status"] = "STATIC"
+        file["index"] = 0
+        file = json.dumps(file)
+        with open(path, 'w') as wpath:
+            wpath.write(file)
+            wpath.close()
+        return "EOF"
+    file["index"] += 2
+    file = json.dumps(file)
+    with open(path, 'w') as wpath:
+        wpath.write(file)
+        wpath.close()
+    return "SUCCESS"
+
 #key for sorting the list
 def elo_key(item):
 	return item['elo']
@@ -96,16 +121,6 @@ def add_item(list_name,item_name):
 
 #contract: none -> none
 #makes + ranks list, then writes to json file
-def new_list():
-	cool_dict = make_list()
-	dict_name = input("Enter list name ")
-	matchup(cool_dict)
-	sort_list(cool_dict)
-	new_json = json.dumps({dict_name:cool_dict})
-	with open('userdata/testuser/lists/'+(dict_name+'.json'),'w') as data:
-		data.write(new_json)
-		data.close()
-
 #UNCOMMENT THE FOLLOWING LINES TO TRY OUT THE FUNCTIONS
 
 #new_list()

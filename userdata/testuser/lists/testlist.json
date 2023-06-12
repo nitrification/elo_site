@@ -1,17 +1,21 @@
 {
-	"id": [
+  "id" : "testlist",
+  "status" : "STATIC",
+  "index" : 0,
+  "size" : 3,
+  "lastmodified" : 214124,
+  "data": [
 		{
-			"name0": "name",
+			"name": "name",
 			"elo": 1500
 		},
 		{
-			"name1": "name",
+			"name": "name",
 			"elo": 1500
 		},
 		{
-			"name2": "name",
+			"name": "name",
 			"elo": 1500
 		}
-	],
-	"lastmodified": 7
+	]
 }
