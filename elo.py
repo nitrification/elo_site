@@ -44,81 +44,38 @@ def scramble(path):
 def update_list(path, winid):
     file = json.loads(open(path, 'r').read())
     if (file["status"] != "UPDATE"):
-        return "NOT_UPDATE_MODE"
-    data = file["data"]
-    index = file["index"]
-    data[index]["elo"], data[(index+1)%file["size"]]["elo"] = elo_update(data[index]["elo"], data[(index+1)%file["size"]]["elo"], winid)
-    file["data"] = data
+        return "NOT_UPDATE_MODE" 
+
+    data, index, size = file["data"], file["index"], file["size"]
+    data[index]["elo"], data[(index+1)%size]["elo"] = elo_update(data[index]["elo"], data[(index+1)%size]["elo"], winid)
     file["lastmodified"] = str(datetime.now(timezone.utc))
-    if (index+2)+1 > file["size"]:
-        file["status"] = "STATIC"
-        file["index"] = 0
-        file = json.dumps(file)
-        with open(path, 'w') as wpath:
-            wpath.write(file)
-            wpath.close()
-        return "EOF"
-    file["index"] += 2
-    file = json.dumps(file)
-    with open(path, 'w') as wpath:
-        wpath.write(file)
-        wpath.close()
-    return "SUCCESS"
 
-#key for sorting the list
-def elo_key(item):
-	return item['elo']
-
-#contract: string->none
-#sorts the list
-def sort_list(list_name):
-	list_name.sort(reverse=True,key=elo_key)
+    if (index+2)+1 > size:
+        file["status"], file["index"] = "STATIC", 0
+        data = sorted(data, reverse=True, key=lambda k: k['elo'])
+        with open(path, 'w') as wfile:
+            wfile.write(json.dumps(file))
+            wfile.close()
+        return "END_OF_LIST"
+    else:
+        file["index"] += 2
+        with open(path, 'w') as wfile:
+            wfile.write(json.dumps(file))
+            wfile.close()
+        return "SUCCESS"
 
 #contract: string,string -> none
 #deletes an item from the specified ranked list
-def delete_item(list_name,item_name):
-	with open('userdata/testuser/lists/'+(list_name+'.json'),'r') as file:
-		file = file.read()
+def delete_item(path, id):
+    file = json.loads(open(path, 'r').read())
+    data = file["data"]
+    if any(id in i for i in data):
 
-	file = json.loads(file)
-	file = file[list_name]
-
-	for item in file:
-		if item["name"] == item_name:
-			file.remove(item)
-	file = {list_name:file}
-	file = json.dumps(file)
-
-	with open('userdata/testuser/lists/'+(list_name+'.json'),'w') as data:
-		data.write(file)
-		data.close()
-
-
+	
 #contract: string,string -> none
 #adds an item to the specified ranked list, then does two matches and sorts
-def add_item(list_name,item_name):
-	with open('userdata/testuser/lists/'+(list_name+'.json'),'r') as file:
-		file = file.read()
-
-	file = json.loads(file)
-	file = file[list_name]
-
-	file.append({"name":item_name,"elo":1500})
-
-	opponents = random.sample(file[0:len(file)-1], 2)
-	for opp in opponents:
-		file[-1]["elo"], opp["elo"] = elo_update(item_name, file[-1]["elo"], opp["name"], opp["elo"])
-	sort_list(file)
-
-	file = {list_name:file}
-	file = json.dumps(file)
-
-	with open('userdata/testuser/lists/'+(list_name+'.json'),'w') as data:
-		data.write(file)
-		data.close()
-
-
-
+def add_item(path, id):
+	
 #contract: none -> none
 #makes + ranks list, then writes to json file
 #UNCOMMENT THE FOLLOWING LINES TO TRY OUT THE FUNCTIONS
