@@ -1,7 +1,5 @@
 import random
 import json
-import pprint
-
 from datetime import datetime, timezone
 
 #accepts a string which is the items in a list
@@ -28,58 +26,107 @@ def elo_update(elo_1, elo_2, result):
 
 #scramble the list for matchup
 #scrample(filepath)
-def scramble(path):
+def make_pairs(path):
     file = json.loads(open(path, 'r').read())
-    file["status"] = "UPDATE"
-    file["index"] = 0
-    file["data"] = random.shuffle(file["data"])
+    if file["status"] != "STATIC":
+        return "BUSY"
+    data, size, = file["data"], file["size"]
+    pairs = []
+    pair_n = 0
+    keylist = random.shuffle(list(data.keys()))
+    for i in range(0, size, 2):
+        pairs.append((keylist[i], keylist[(i+1)%size]))
+        pair_n += 1
+
     file["lastmodified"] = str(datetime.now(timezone.utc))
-    file = json.dumps(file)
+    file["pairs"] = pairs
+    file["pair_n"] = pair_n
     with open(path, 'w') as wpath:
         wpath.write(file)
         wpath.close()
-    return
+        
+    return "SUCCESS"
 
 #updates the list, happens in packets
 def update_list(path, winid):
     file = json.loads(open(path, 'r').read())
-    if (file["status"] != "UPDATE"):
-        return "NOT_UPDATE_MODE" 
-
-    data, index, size = file["data"], file["index"], file["size"]
-    data[index]["elo"], data[(index+1)%size]["elo"] = elo_update(data[index]["elo"], data[(index+1)%size]["elo"], winid)
+    data, index, pair, pair_n = file["data"], file["index"], file["pairs"], file["pair_n"]
+    pair = pair[index]
+    data[pair[0]], data[pair[1]] = elo_update(data[pair[0]], data[pair[1]], winid)
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
-    if (index+2)+1 > size:
-        file["status"], file["index"] = "STATIC", 0
-        data = sorted(data, reverse=True, key=lambda k: k['elo'])
+    if ((index+1) >= pair_n):
         with open(path, 'w') as wfile:
             wfile.write(json.dumps(file))
             wfile.close()
         return "END_OF_LIST"
+
     else:
-        file["index"] += 2
+        file["index"] += 1
         with open(path, 'w') as wfile:
             wfile.write(json.dumps(file))
             wfile.close()
         return "SUCCESS"
 
-#contract: string,string -> none
-#deletes an item from the specified ranked list
+#EMPTY = NOTHING MORE TO DELETE
+#INVALID_ID = ID DOESNT EXIST
+#BUSY = FILE BEING USED BY SOMETHING else:
 def delete_item(path, id):
     file = json.loads(open(path, 'r').read())
-    data = file["data"]
-    if any(id in i for i in data):
+    if file["status"] != "STATIC":
+        return "BUSY"
 
-	
-#contract: string,string -> none
-#adds an item to the specified ranked list, then does two matches and sorts
+    data, size = file["data"],  file["size"]
+
+    if size < 1:
+        return "EMPTY"
+    if id not in data:
+        return "INVALID_ID"
+
+    del data[id]
+    size -= 1
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+
+    with open(path, 'w') as wfile:
+        wfile.write(json.dumps(file))
+        wfile.close()
+
+    return "SUCCESS"
+
+#REDUN_ID = ID ALREADY EXISTS
+#BUSY = FILE IS BEING USED BY SOMETHING ELSE
 def add_item(path, id):
-	
-#contract: none -> none
-#makes + ranks list, then writes to json file
-#UNCOMMENT THE FOLLOWING LINES TO TRY OUT THE FUNCTIONS
+    file = json.loads(open(path, 'r').read())
+    if file["status"] != "STATIC":
+        return "BUSY"
 
-#new_list()
-#delete_item(input("Name of list"),input("Item to delete"))
-#add_item(input("Name of list"),input("Item to add"))
+    data, size = file["data"], file["size"]
+
+    if id in data:
+        return "REDUN_ID"
+    data[id] = 1500
+    size += 1
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+
+    with open(path, 'w') as wfile:
+        wfile.write(json.dumps(file))
+        wfile.close()
+
+    return "SUCCESS"
+
+def sort_list(path):
+    file = json.loads(open(path, 'r').read())
+    if file["status"] != "STATIC":
+        return "BUSY"
+    file["data"] = dict(sorted(file["data"].items()))
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+
+    with open(path, 'w') as wfile:
+        wfile.write(json.dumps(file))
+        wfile.close()
+
+    return "SUCCESS"
+
+
+
+
