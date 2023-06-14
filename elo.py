@@ -118,7 +118,7 @@ def sort_list(path):
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
-    file["data"] = dict(sorted(file["data"].items()))
+    file["data"] = dict(sorted(file["data"].items(), reverse=True))
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
