@@ -1,15 +1,28 @@
 import random
 import json
+import os
 from datetime import datetime, timezone
 
 #accepts a string which is the items in a list
 #each entry is seperated by a \n character
 #make_list(string data)
-def make_list(rawdata):
-    namelist = rawdata.split("\n")
-    for name in namelist:
-        name = {"name" : name, "elo" : 1500}
-    return namelist 
+def make_list(path, id, data):
+    if os.path.exists(path):
+        return "DUPATH"
+    file = {}
+    file["id"] = id
+    file["status"] = "STATIC"
+    file["index"] = 0
+    file["data"] = {}
+    for i in data.split("\n"):
+        file["data"][i] = 1500
+    file["pairs"] = []
+    file["pair_n"] = 0
+    file["size"] = len(file["data"])
+    file["lastmodified"] = str(datetime.now(timezone.utc))
+    with open(path, 'w') as wpath:
+        wpath.write(json.dumps(file))
+        wpath.close()
 
 #find expected result
 #expected_result(int self_elo, int foe_elo)
@@ -27,13 +40,16 @@ def elo_update(elo_1, elo_2, result):
 #scramble the list for matchup
 #scrample(filepath)
 def make_pairs(path):
+    if os.path.exists(path) == False:
+        return "NOPATH"
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
     data, size, = file["data"], file["size"]
     pairs = []
     pair_n = 0
-    keylist = random.shuffle(list(data.keys()))
+    keylist = list(data.keys())
+    random.shuffle(keylist)
     for i in range(0, size, 2):
         pairs.append((keylist[i], keylist[(i+1)%size]))
         pair_n += 1
@@ -42,13 +58,22 @@ def make_pairs(path):
     file["pairs"] = pairs
     file["pair_n"] = pair_n
     with open(path, 'w') as wpath:
-        wpath.write(file)
+        wpath.write(json.dumps(file))
         wpath.close()
         
     return "SUCCESS"
 
+def get_pair(path):
+    if os.path.exists(path) == False:
+        return "NOPATH"
+    file = json.loads(open(path, 'r').read())
+    pair, index = file["pairs"], file["index"]
+    return pair[index]
+
 #updates the list, happens in packets
 def update_list(path, winid):
+    if os.path.exists(path) == False:
+        return "NOPATH"
     file = json.loads(open(path, 'r').read())
     data, index, pair, pair_n = file["data"], file["index"], file["pairs"], file["pair_n"]
     pair = pair[index]
@@ -56,6 +81,7 @@ def update_list(path, winid):
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     if ((index+1) >= pair_n):
+        file["index"] = 0
         with open(path, 'w') as wfile:
             wfile.write(json.dumps(file))
             wfile.close()
@@ -68,10 +94,14 @@ def update_list(path, winid):
             wfile.close()
         return "SUCCESS"
 
+
+
 #EMPTY = NOTHING MORE TO DELETE
 #INVALID_ID = ID DOESNT EXIST
 #BUSY = FILE BEING USED BY SOMETHING else:
 def delete_item(path, id):
+    if os.path.exists(path) == False:
+        return "NOPATH"
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
@@ -96,6 +126,8 @@ def delete_item(path, id):
 #REDUN_ID = ID ALREADY EXISTS
 #BUSY = FILE IS BEING USED BY SOMETHING ELSE
 def add_item(path, id):
+    if os.path.exists(path) == False:
+        return "NOPATH"
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
@@ -115,6 +147,8 @@ def add_item(path, id):
     return "SUCCESS"
 
 def sort_list(path):
+    if os.path.exists(path) == False:
+        return "NOPATH"
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
@@ -127,6 +161,12 @@ def sort_list(path):
 
     return "SUCCESS"
 
-
+def view_list(path):
+    if os.path.exists(path) == False:
+        return "NOPATH"
+    file = json.loads(open(path, 'r').read())
+    if file["status"] != "STATIC":
+        return "BUSY"
+    return file["data"]
 
 

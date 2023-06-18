@@ -1,6 +1,6 @@
 {
   "username" : 123,
   "password" : "somehash",
-  "lastactive" : 123123,
-  "ips" : ["213.213.23123"]
+  "lastlogin" : 123123,
+  "accountcreated" : 1233
 }
