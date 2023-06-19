@@ -11,6 +11,7 @@
 <body>
     <h1>SUPER AWESOME WEBSITE</h1>
     <div class="card">
+        <!--The card class just makes the stuff look like a card. So whenever you want a card for a list, put it in a div with class="card"-->
         <h4><b>Fruits</b></h4>
         <p>4 items</p>
     </div>
