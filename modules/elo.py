@@ -51,7 +51,7 @@ def make_pairs(path):
     keylist = list(data.keys())
     random.shuffle(keylist)
     for i in range(0, size, 2):
-        pairs.append((keylist[i], keylist[(i+1)%size]))
+        pairs.append([keylist[i], keylist[(i+1)%size]])
         pair_n += 1
 
     file["lastmodified"] = str(datetime.now(timezone.utc))
@@ -168,5 +168,4 @@ def view_list(path):
     if file["status"] != "STATIC":
         return "BUSY"
     return file["data"]
-
 

@@ -4,7 +4,7 @@
   "index" : 0,
   "size" : 3,
   "lastmodified" : 214124,
-  "pairs" : [("item1", "item2"), ("item3", "item1")],
+  "pairs" : [["item1", "item2"], ["item3", "item1"]],
   "pear_n" : 2,
   "data" : {
     "item1" : 1500,
