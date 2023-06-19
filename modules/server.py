@@ -9,10 +9,6 @@ datapath = "userdata/"
 def index():
     return
 
-@route('/login')
-def login():
-    return
-
 @post('/login')
 def process_login():
     username = request.forms.get('username')
@@ -30,13 +26,22 @@ def process_login():
 def signup():
     return
 
+@route('/list')
+def show_lists():
+    username = 'testuser'
+
 @route('/list/<listname>')
-def table(listname):
+def show_list(listname):
     username = 'testuser'
     if username == 'testuser':
         data = elo.view_list(datapath + username + "/lists/" + listname + ".json")
         return template("list", data=data, listname=listname)
     else:
         return
+
+@post('/list/<listname>')
+def process_list(listname):
+
+
 
 run(debug=True, reloader=True, port=8000)
