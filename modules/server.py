@@ -41,6 +41,7 @@ def show_list(listname):
     username = 'testuser'
     if username == 'testuser':
         data = elo.view_list(datapath + username + "/lists/" + listname + ".json")
+        print(data, datapath)
         return template("list", data=data, listname=listname)
     else:
         return

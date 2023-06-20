@@ -178,12 +178,13 @@ def sort_list(path):
     return "SUCCESS"
 
 def view_list(path):
+    print("ELO.py: " + path)
     if os.path.exists(path) == False:
         return "NOPATH"
     fp = open(path, 'r')
     file = json.loads(fp.read())
     fp.close()
     if file["status"] != "STATIC":
-        return "BUSY":
+        return "BUSY"
     return file["data"]
 
