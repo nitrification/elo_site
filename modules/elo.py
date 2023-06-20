@@ -35,7 +35,7 @@ def expected_result(self_elo, foe_elo):
 def elo_update(elo_1, elo_2, result):
 	K=30
 	expected = expected_result(elo_1, elo_2)
-	return elo_1 + K*(result - expected), elo_2 + K*((1 - result) - (1 - expected))
+	return round(elo_1 + K*(result - expected), 2), round(elo_2 + K*((1 - result) - (1 - expected)), 2)
 
 #scramble the list for matchup
 #scrample(filepath)
@@ -45,18 +45,17 @@ def make_pairs(path):
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
-    data, size, = file["data"], file["size"]
+    data, size = file["data"], file["size"]
     pairs = []
-    pair_n = 0
     keylist = list(data.keys())
     random.shuffle(keylist)
     for i in range(0, size, 2):
         pairs.append([keylist[i], keylist[(i+1)%size]])
-        pair_n += 1
 
     file["lastmodified"] = str(datetime.now(timezone.utc))
     file["pairs"] = pairs
-    file["pair_n"] = pair_n
+    file["pair_n"] = len(pairs)
+    file["index"] = 0
     with open(path, 'w') as wpath:
         wpath.write(json.dumps(file))
         wpath.close()
@@ -132,12 +131,13 @@ def add_item(path, id):
     if file["status"] != "STATIC":
         return "BUSY"
 
-    data, size = file["data"], file["size"]
+    data = file["data"]
 
     if id in data:
         return "REDUN_ID"
+
     data[id] = 1500
-    size += 1
+    file["size"] = len(data) 
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
@@ -152,7 +152,7 @@ def sort_list(path):
     file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
-    file["data"] = dict(sorted(file["data"].items(), reverse=True))
+    file["data"] = dict(sorted(file["data"].items(), key=lambda i: i[1], reverse=True))
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:

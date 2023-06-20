@@ -1,14 +1,1 @@
-{
-  "id" : "testlist",
-  "status" : "STATIC",
-  "index" : 0,
-  "size" : 3,
-  "lastmodified" : 214124,
-  "pairs" : [["item1", "item2"], ["item3", "item1"]],
-  "pear_n" : 2,
-  "data" : {
-    "item1" : 1500,
-    "item2" : 1500,
-    "item3" : 1500
-  }
-}
+{"id": "testlist", "status": "STATIC", "index": 0, "size": 7, "lastmodified": "2023-06-20 00:49:50.377500+00:00", "pairs": [["farts", "item2"], ["item3", "Cows"], ["item1", "ger"], ["daw", "farts"]], "pair_n": 4, "data": {"item3": 1549.54, "daw": 1527.49, "ger": 1525.77, "item2": 1505.35, "farts": 1483.8, "item1": 1478.84, "Cows": 1443.7}}
