@@ -105,7 +105,7 @@ def delete_item(path, id):
     if file["status"] != "STATIC":
         return "BUSY"
 
-    data, size = file["data"],  file["size"]
+    data, size = file["data"], file["size"]
 
     if size < 1:
         return "EMPTY"
@@ -114,6 +114,8 @@ def delete_item(path, id):
 
     del data[id]
     size -= 1
+
+    file["size"] = size
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
@@ -137,7 +139,7 @@ def add_item(path, id):
         return "REDUN_ID"
 
     data[id] = 1500
-    file["size"] = len(data) 
+    file["size"] += 1 
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
