@@ -10,7 +10,9 @@ def verify_credentials(user, password):
     userpath = datapath + user + "/userdata.json"
     if os.path.exists(userpath) == False:
         return "NOPATH" 
-    userdata = json.loads(open(userpath, 'r').read())
+    fp = open(userpath, 'r')
+    userdata = json.loads(fp.read())
+    fp.close()
     if sha256(password.encode('utf-8')).hexdigest() == userdata["password"]:
         userdata["lastlogin"] = str(datetime.now(timezone.utc))
         with open(userpath, 'w') as wpath:

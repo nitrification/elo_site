@@ -42,7 +42,11 @@ def elo_update(elo_1, elo_2, result):
 def make_pairs(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
+
     if file["status"] != "STATIC":
         return "BUSY"
     data, size = file["data"], file["size"]
@@ -65,7 +69,9 @@ def make_pairs(path):
 def get_pair(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     pair, index = file["pairs"], file["index"]
     return pair[index]
 
@@ -73,7 +79,9 @@ def get_pair(path):
 def update_list(path, winid):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     data, index, pair, pair_n = file["data"], file["index"], file["pairs"], file["pair_n"]
     pair = pair[index]
     data[pair[0]], data[pair[1]] = elo_update(data[pair[0]], data[pair[1]], winid)
@@ -101,7 +109,9 @@ def update_list(path, winid):
 def delete_item(path, id):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     if file["status"] != "STATIC":
         return "BUSY"
 
@@ -129,7 +139,9 @@ def delete_item(path, id):
 def add_item(path, id):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     if file["status"] != "STATIC":
         return "BUSY"
 
@@ -151,7 +163,9 @@ def add_item(path, id):
 def sort_list(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     if file["status"] != "STATIC":
         return "BUSY"
     file["data"] = dict(sorted(file["data"].items(), key=lambda i: i[1], reverse=True))
@@ -166,8 +180,10 @@ def sort_list(path):
 def view_list(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    file = json.loads(open(path, 'r').read())
+    fp = open(path, 'r')
+    file = json.loads(fp.read())
+    fp.close()
     if file["status"] != "STATIC":
-        return "BUSY"
+        return "BUSY":
     return file["data"]
 
