@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>{{listname}}</title>
+</head>
+<body>
+  <div class="list_box">
+    <table class="list_table">
+      <tr class="list_row">
+        <th class="list_col_h">Item</th>
+        <th class="list_col_h">Elo</th>
+        <th class="list_col_h">Actions</th>
+      </tr>
+      <tr class="list_row">
+        <td class="list_col">
+          <form action="/list/{{listname}}" method="POST">
+            <table>
+              <tr class="list_row">
+                <td class="list_col"> <input type="text" class="list_input" id="item" name="item" placeholder="Item"> </td>
+                <td class="list_col"> </td>
+                <td class="list_col"> <input type="submit" class="list_add_button" value="add item"> </td>
+              </tr>
+            </table>
+          </form>
+        </td>
+      </tr>
+      % for item in data.keys():
+      <tr class="list_row">
+        <td class="list_col">
+          <form action="/list/{{listname}}" method="POST">
+            <table class="list_table">
+              <tr>
+                <td class="list_col"> <p class="item_label">{{item}}</p> </td>
+                <td class="list_col"> <p class="item_label">{{data[item]}}</p> </td>
+                <td class="list_col"> <input type="submit" class="list_del_button" value="delete {{item}}"> </td>
+              </tr>
+            </table>
+          </form>
+        </td>
+      </tr>
+      % end
+    </table>
+  </div>
+
+
+
+
+          
+      
+
+
+</body>
+</html>
