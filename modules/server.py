@@ -14,7 +14,7 @@ def OH_SHIT():
 
 @route('/static/<filename>')
 def styelsheet_static(filename):
-    return static_file(filename, root="views/")
+    return static_file(filename, root="static/")
 
 @post('/login')
 def process_login():

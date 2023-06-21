@@ -3,23 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link type="text/css" rel="stylesheet" href="/static/style.css">
+    <link type="text/css" rel="stylesheet" href="/static/displaylist.css">
     <title>{{listname}}</title>
 </head>
 <body>
   <div class="list_box">
+  <h1>{{listname}}</h1>
     <div class="list_action_box">
-    <table class="list_table">
-
-    <tr class="list_row">
-        <th class="list_col_h">Item</th>
-        <th class="list_col_h">Elo</th>
-        <th class="list_col_h">Actions</th>
-    </tr>
-
-    </table>
+        <div class="fake_box" style="width:58%"> <h2>Item</h2> </div>
+        <div class="fake_box" style="width:19%"> <h2>Elo</h2> </div>
+        <div class="fake_box" style="width:19%"> <h2>Action</h2> </div>
     </div>
-    
+
     <div class="list_add_box">
     <table class="list_table">
 
@@ -29,12 +24,10 @@
         <table class="list_table">
             
             <tr class="list_row">
-                <td class="list_col"> 
+                <td class="list_td_input" style="width:80%"> 
                 <input type="text" class="list_input" id="item" name="item" placeholder="Item"> 
                 </td>
-                <td class="list_col"> 
-                </td>
-                <td class="list_col"> 
+                <td class="list_col" style="width:20%"> 
                 <button type="submit" class="list_add_button" name="action" value="ADD">Add Item</button>
                 </td>
             </tr>
@@ -56,13 +49,13 @@
         <form action="/list/{{listname}}" method="post">
 
         <table class="list_table">
-                <tr>
-                <td class="list_col"> <p class="item_label">{{item}}</p> </td>
-                <td class="list_col"> <p class="item_label">{{data[item]}}</p> </td>
-                <td class="list_col"> 
+                <td class="list_col" style="width:60%"> 
+                <div class="fake_button"> <p class="item_label">{{item}}</p> </div> </td>
+                <td class="list_col" style="width:20%"> 
+                <div class="fake_button"> <p class="item_label">{{data[item]}}</p> </td>
+                <td class="list_col" style="width:20%"> 
                 <button type="submit" class="list_del_button" name="action" value="DEL_{{item}}">Delete</button>
                 </td>
-                </tr>
 
         </table>
         </form>
@@ -74,15 +67,11 @@
     </div>
 
   <div class="list_bottom_box">
-    <form action="/list/{{listname}}/clear" method="post">
-      <button type="submit" class="list_del_button" name="action" value="CLR">Delete List</button>
-    </form>
     <form action="{{listname}}/rank" method="post">
-      <button type="submit" class="list_add_button" name="action" value="RNK">Rank Items</button>
+      <button type="submit" class="list_b_action_button" name="action" value="RNK">Rank Items</button>
     </form>
   </div>
 
-  </div>
-
+</div>
 </body>
 </html>
