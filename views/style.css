@@ -18,12 +18,57 @@ h1 {
     text-align: center;
 }
 
-
+/* template boxes */
+.center_box {
+  border: 2px solid black;
+  border-radius: 4px;
+  background-color: white;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+}
 /* list.tpl */
-.list_box {
+.list_box { 
+  width: 700px;
+  height: 900px;
+  background-color: white;
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px;
+  overflow-y: scroll;
 }
 
+.list_action_box {
+  width: 100%;
+  height: 10%;
+  border: 2px solid green;
+}
+
+.list_add_box {
+  width: 100%;
+  height: 5%;
+  border: 2px solid red;
+}
 .list_table {
+  width: 100%;
+  height: 100%
+}
+
+.list_item_box {
+  width: 100%;
+  height: 75%;
+  border: 2px solid blue;
+}
+
+.list_bottom_box {
+  width: 100%;
+  height: 5%;
 }
 
 .list_col_h {
@@ -44,13 +89,4 @@ h1 {
 .list_add_button {
 }
 
-/* comparison.tpl */
-.comparison_box {
-}
-
-.comparison_box_size {
-}
-
-.comparison_button {
-}
 

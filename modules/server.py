@@ -1,10 +1,8 @@
-from bottle import route, run, request, get, post, template, response, redirect
-import bottle
-import elo, userhandle, os
+from bottle import route, run, request, get, post, template, response, redirect, static_file
+import elo, userhandle, os, bottle
 
 bottle.TEMPLATE_PATH.insert(0, '../views/')
 datapath = "userdata/"
-
 
 @route('/index')
 def index():
@@ -13,6 +11,10 @@ def index():
 @route('/OH_SHIT')
 def OH_SHIT():
     return "OH SHIT"
+
+@route('/static/<filename>')
+def styelsheet_static(filename):
+    return static_file(filename, root="views/")
 
 @post('/login')
 def process_login():
@@ -81,14 +83,13 @@ def rank_list(listname):
                         return template("comparison", pair=pair, listname=listname)
 
 
-
 @post('/list/<listname>/clear')
 def del_list(listname):
     username = 'testuser'
     if os.remove(datapath + username + "/lists/" + listname + ".json"):
         redirect('/list')
     else:
-        redirect('OH_SHIT')
+        redirect('/OH_SHIT')
 
 @post('/list/<listname>')
 def process_list(listname):
@@ -118,8 +119,5 @@ def process_list(listname):
                         case 'NOPATH': pass
                         case 'BUSY': pass
                         case 'SUCCESS': redirect('/list/' + listname)
-
-
-
 
 run(debug=True, reloader=True, port=8000)

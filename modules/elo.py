@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 #accepts a string which is the items in a list
 #each entry is seperated by a \n character
 #make_list(string data)
-def make_list(path, id, data):
+def make_list(path, id):
     if os.path.exists(path):
         return "DUPATH"
     file = {}
@@ -14,15 +14,14 @@ def make_list(path, id, data):
     file["status"] = "STATIC"
     file["index"] = 0
     file["data"] = {}
-    for i in data.split("\n"):
-        file["data"][i] = 1500
     file["pairs"] = []
     file["pair_n"] = 0
-    file["size"] = len(file["data"])
+    file["size"] = 0 
     file["lastmodified"] = str(datetime.now(timezone.utc))
     with open(path, 'w') as wpath:
         wpath.write(json.dumps(file))
         wpath.close()
+    return "SUCCESS"
 
 #find expected result
 #expected_result(int self_elo, int foe_elo)
