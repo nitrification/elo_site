@@ -1,1 +1,14 @@
-{"id": "testlist", "status": "STATIC", "index": 0, "size": 11, "lastmodified": "2023-06-21 04:08:02.912028+00:00", "pairs": [["item1", "daw"], ["dfafdadg", "wsad"], ["Mango", "dwad"], ["goober", "cxbxcbxcb"], ["Cows", "item3"], ["gadgadgadg", "item1"]], "pair_n": 6, "data": {"Cows": 1541.22, "goober": 1537.92, "Mango": 1530.42, "daw": 1518.51, "dwad": 1516.58, "dfafdadg": 1514.14, "item1": 1509.35, "item3": 1501.58, "wsad": 1500.0, "cxbxcbxcb": 1471.07, "gadgadgadg": 1470.0}}
+{
+  "id" : "testlist",
+  "status" : "STATIC",
+  "index" : 0,
+  "size" : 3,
+  "lastmodified" : 214124,
+  "pairs" : [["item1", "item2"], ["item3", "item1"]],
+  "pear_n" : 2,
+  "data" : {
+    "item1" : 1500,
+    "item2" : 1500,
+    "item3" : 1500
+  }
+}
