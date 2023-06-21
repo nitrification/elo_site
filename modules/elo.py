@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 #accepts a string which is the items in a list
 #each entry is seperated by a \n character
 #make_list(string data)
-def make_list(path, id):
+def make_list(path, id, data):
     if os.path.exists(path):
         return "DUPATH"
     file = {}
@@ -14,14 +14,15 @@ def make_list(path, id):
     file["status"] = "STATIC"
     file["index"] = 0
     file["data"] = {}
+    for i in data.split("\n"):
+        file["data"][i] = 1500
     file["pairs"] = []
     file["pair_n"] = 0
-    file["size"] = 0 
+    file["size"] = len(file["data"])
     file["lastmodified"] = str(datetime.now(timezone.utc))
     with open(path, 'w') as wpath:
         wpath.write(json.dumps(file))
         wpath.close()
-    return "SUCCESS"
 
 #find expected result
 #expected_result(int self_elo, int foe_elo)
@@ -34,31 +35,28 @@ def expected_result(self_elo, foe_elo):
 def elo_update(elo_1, elo_2, result):
 	K=30
 	expected = expected_result(elo_1, elo_2)
-	return round(elo_1 + K*(result - expected), 2), round(elo_2 + K*((1 - result) - (1 - expected)), 2)
+	return elo_1 + K*(result - expected), elo_2 + K*((1 - result) - (1 - expected))
 
 #scramble the list for matchup
 #scrample(filepath)
 def make_pairs(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
-
+    file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
-    data, size = file["data"], file["size"]
+    data, size, = file["data"], file["size"]
     pairs = []
+    pair_n = 0
     keylist = list(data.keys())
     random.shuffle(keylist)
     for i in range(0, size, 2):
         pairs.append([keylist[i], keylist[(i+1)%size]])
+        pair_n += 1
 
     file["lastmodified"] = str(datetime.now(timezone.utc))
     file["pairs"] = pairs
-    file["pair_n"] = len(pairs)
-    file["index"] = 0
+    file["pair_n"] = pair_n
     with open(path, 'w') as wpath:
         wpath.write(json.dumps(file))
         wpath.close()
@@ -68,9 +66,7 @@ def make_pairs(path):
 def get_pair(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     pair, index = file["pairs"], file["index"]
     return pair[index]
 
@@ -78,9 +74,7 @@ def get_pair(path):
 def update_list(path, winid):
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     data, index, pair, pair_n = file["data"], file["index"], file["pairs"], file["pair_n"]
     pair = pair[index]
     data[pair[0]], data[pair[1]] = elo_update(data[pair[0]], data[pair[1]], winid)
@@ -108,13 +102,11 @@ def update_list(path, winid):
 def delete_item(path, id):
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
 
-    data, size = file["data"], file["size"]
+    data, size = file["data"],  file["size"]
 
     if size < 1:
         return "EMPTY"
@@ -123,8 +115,6 @@ def delete_item(path, id):
 
     del data[id]
     size -= 1
-
-    file["size"] = size
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
@@ -138,19 +128,16 @@ def delete_item(path, id):
 def add_item(path, id):
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
 
-    data = file["data"]
+    data, size = file["data"], file["size"]
 
     if id in data:
         return "REDUN_ID"
-
     data[id] = 1500
-    file["size"] += 1 
+    size += 1
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
@@ -162,12 +149,10 @@ def add_item(path, id):
 def sort_list(path):
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
-    file["data"] = dict(sorted(file["data"].items(), key=lambda i: i[1], reverse=True))
+    file["data"] = dict(sorted(file["data"].items(), reverse=True))
     file["lastmodified"] = str(datetime.now(timezone.utc))
 
     with open(path, 'w') as wfile:
@@ -177,12 +162,9 @@ def sort_list(path):
     return "SUCCESS"
 
 def view_list(path):
-    print("ELO.py: " + path)
     if os.path.exists(path) == False:
         return "NOPATH"
-    fp = open(path, 'r')
-    file = json.loads(fp.read())
-    fp.close()
+    file = json.loads(open(path, 'r').read())
     if file["status"] != "STATIC":
         return "BUSY"
     return file["data"]
