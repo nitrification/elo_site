@@ -4,15 +4,14 @@ import os
 from hashlib import sha256
 from datetime import datetime, timezone
 
-datapath = "../userdata/"
+datapath = os.getcwd()
 
 def verify_credentials(user, password):
-    userpath = datapath + user + "/userdata.json"
+    userpath = datapath + "/"+ user + "/userdata.json"
+    print(userpath)
     if os.path.exists(userpath) == False:
         return "NOPATH" 
-    fp = open(userpath, 'r')
-    userdata = json.loads(fp.read())
-    fp.close()
+    userdata = json.loads(open(userpath, 'r').read())
     if sha256(password.encode('utf-8')).hexdigest() == userdata["password"]:
         userdata["lastlogin"] = str(datetime.now(timezone.utc))
         with open(userpath, 'w') as wpath:
@@ -23,7 +22,7 @@ def verify_credentials(user, password):
         return "INV_PASS" 
 
 def create_account(user, password, cpassword):
-    userpath = datapath + user + "/"
+    userpath = datapath + "/" + "userdata/"+ user + "/"
     if os.path.exists(userpath) == True:
         return "DUPATH" 
     if password != cpassword:
