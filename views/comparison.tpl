@@ -9,6 +9,7 @@
 </head>
 
 <body>
+  <h1><a href="/index">Home</a> | <a href="/list">Lists</a> | <a href="/logout">Logout</a></h1>
   <div class="comparison_box">
     <h1>Pick which you prefer more:</h1>
     <form action="/list/{{listname}}/rank" method="post">

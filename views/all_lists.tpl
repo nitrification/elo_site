@@ -3,24 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link type="text/css" rel="stylesheet" href="/static/displaylist.css">
     <title>{{user}}'s lists</title>
 </head>
 <body>
-    <h1>{{signupplz}}</h1>
-    %if listz != None: 
-        %for i in listz:
-    <div class="card">
-    <form method="post" action="/list">
-        <input type="submit" id="{{i}}" name="list" value="{{i}}">
-        <input type="submit" id="remove_{{i}}" name="remove_list" value="Remove">
-    </form>
+  <h1><a href="/index">Home</a> | <a href="/logout">Logout</a></h1>
+  <div class="list_box">
+  <h1>{{user}}'s lists</h1>
+    <div class="list_action_box">
+        <div class="fake_box" style="width:58%"> <h2>List Name</h2> </div>
+        <div class="fake_box" style="width:19%"> <h2></h2> </div>
+        <div class="fake_box" style="width:19%"> <h2>Action</h2> </div>
     </div>
-        %end
-    %end
-    <div class="card">
-    <form method="post" action="/list">
-        <input type="submit" id="add_list" name="add_list" value="Add a list">
-    </form>
+
+    <div class="list_add_box">
+    <table class="list_table">
+
+    <tr class="list_row">
+        <td class="list_col">
+        <form action="/list" method="post">
+        <table class="list_table">
+            
+            <tr class="list_row">
+                <td class="list_td_input" style="width:80%"> 
+                <input type="text" class="list_input" id="item" name="item" placeholder="List Name"> 
+                </td>
+                <td class="list_col" style="width:20%"> 
+                <button type="submit" class="list_add_button" name="action" value="ADD">Add List</button>
+                </td>
+            </tr>
+            
+        </table>
+        </form>
+        </td>
+    </tr>
+
+    </table>
     </div>
+      
+    <div class="list_item_box">
+    <table class="list_table">
+
+      % for item in data:
+      <tr class="list_row">
+        <td class="list_col">
+        <form action="/list" method="post">
+
+        <table class="list_table">
+                <td class="list_col" style="width:60%"> 
+                <div class="fake_button"> <p class="item_label">{{item}}</p> </div> </td>
+                <td class="list_col" style="width:20%"> 
+                <button type="submit" class="list_edit_button" name="action" value="RED_{{item}}">Edit</button>
+                </td>
+                <td class="list_col" style="width:20%"> 
+                <button type="submit" class="list_del_button" name="action" value="DEL_{{item}}">Delete</button>
+                </td>
+
+        </table>
+        </form>
+        </td>
+      </tr>
+      % end
+      
+    </table>
+    </div>
+
+
+</div>
 </body>
 </html>

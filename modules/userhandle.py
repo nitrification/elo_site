@@ -1,4 +1,4 @@
-#Database processing code
+#Database procesing code
 import json
 import os
 from hashlib import sha256
@@ -6,9 +6,8 @@ from datetime import datetime, timezone
 
 datapath = "userdata/" 
 
-def verify_credentials(user, password):
-    userpath = datapath + "/"+ user + "/userdata.json"
-    print(userpath)
+def verify_credentials(path, password):
+    userpath = path + "/userdata.json"
     if os.path.exists(userpath) == False:
         return "NOPATH" 
     userdata = json.loads(open(userpath, 'r').read())
@@ -21,8 +20,7 @@ def verify_credentials(user, password):
     else:
         return "INV_PASS" 
 
-def create_account(user, password, cpassword):
-    userpath = datapath + "/" + user + "/"
+def create_account(userpath, password, cpassword):
     if os.path.exists(userpath) == True:
         return "DUPATH" 
     if password != cpassword:
@@ -42,11 +40,14 @@ def create_account(user, password, cpassword):
         wpath.close()
     return "SUCCESS" 
 
-def get_lists(user):
-    userpath = datapath + user + "/lists/"
+def get_lists(path):
+    userpath = path + "/lists/"
     if os.path.exists(userpath) == False:
         return "NOPATH"
-    return os.listdir(userpath)
+    pathlist = os.listdir(userpath)
+    for i in range(len(pathlist)):
+        pathlist[i] = pathlist[i][:len(pathlist[i])-5]
+    return pathlist
 
 if __name__ == "__main__":
-    pass
+    print("attempting to run module as main")

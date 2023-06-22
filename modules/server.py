@@ -1,15 +1,17 @@
 from bottle import route, run, request, get, post, template, response, redirect, static_file
 import bottle
-import elo, userhandle, os
-from elo import make_list
-from userhandle import create_account, get_lists
+import elo, userhandle
 
 bottle.TEMPLATE_PATH.insert(0, '../views/')
 datapath = "userdata/"
 
 @route('/index')
 def index():
-    return
+    user = request.get_cookie("user", secret='some-secret-key')
+    if user:
+        redirect('/list')
+    else:
+        return template('index')
 
 @route('/static/<filename>')
 def styelsheet_static(filename):
@@ -31,19 +33,33 @@ def showerror(errortype):
             chosen_link = '/list'
         case "DEL_ERROR":
             chosen_link = '/list'
+        case "LIST_EXISTS":
+            chosen_link = '/list'
+        case "ITEM_EXISTS":
+            chosen_link = '/list'
+        case "ZERO_ELEMENTS":
+            chosen_link = '/list'
+        case "NO_USER":
+            chosen_link = '/login'
+
 
     return template('error', errortype=errortype, redirect_link=chosen_link)
 
+#LOGIN/SIGNUP
+
 @route('/signup')
-def loadsignup():
-    return template('signup')
+def loadsignup(): 
+    if request.get_cookie("user", secret='some-secret-key') != None:
+        redirect ('/list')
+    else:
+        return template('signup')
 
 @post('/signup')
 def signup():
     username = request.forms.get("username")
     password = request.forms.get("password")
     cpassword = request.forms.get("cpassword")
-    match create_account(username, password, cpassword):
+    match userhandle.create_account(username, password, cpassword):
         case "DUPATH": redirect('/error/' + "ACCOUNT_EXISTS") 
         case "INV_PASS": redirect('/error/' + "INVALID_PASSWORD") 
         case "SUCCESS":
@@ -61,73 +77,98 @@ def display_login():
 def process_login():
     username = request.forms.get('username')
     password = request.forms.get('password')
-    match userhandle.verify_credentials(username, password):
+    match userhandle.verify_credentials(datapath + username, password):
         case 'NOPATH': redirect('/error/' + "ACCOUNT_NONEXISTANT") 
-        case 'INV_PASS': redirect('/error' + "INVALID_PASSWORD_L") 
+        case 'INV_PASS': redirect('/error/' + "INVALID_PASSWORD_L") 
         case 'SUCCESS':
             response.set_cookie("user", username, secret='some-secret-key')
             redirect('/list')
-   
+
+@route('/logout')
+def logout():
+    response.delete_cookie("user", secret='some-secret-key') 
+    return template('logout')
+
+#LIST MENU 
 
 @route('/list')
 def show_lists():
-    if request.get_cookie("user", secret='some-secret-key') != None:
-        username=request.get_cookie("user", secret='some-secret-key')
-        print(username)
-        listz=get_lists(username)
-        if listz!="NOPATH":
-            return(template("all_lists", listz=listz, user=username, signupplz=""))
-        else:
-            return(template("all_lists",listz=None, user=username, signupplz=""))
-    else:
-        return template("all_lists", listz=None,user=None, signupplz="Please sign up or login to your account")
+    user = request.get_cookie("user", secret='some-secret-key')
+    if user: 
+        data = userhandle.get_lists(datapath + user)    
+        return template("all_lists", data=data, user=user)
+
+    else: 
+        redirect('/error/' + "NO_USER")
 
 @post('/list')
-def go_to_list():
-    listname = request.forms.get('list')
-    removelist= request.forms.get('remove_list')
-    addlist=request.forms.get('add_list')
-    if listname != None: 
-        redirect('/list/' + listname)
-        print(listname)
-    if removelist != None: 
-        redirect('/list/<listname>/clear') 
-    if addlist != None: 
-        redirect('/list/make_list')
+def process_all_list():
+    action = request.forms.get('action')
+    username = request.get_cookie("user", secret='some-secret-key')
+    if username:
+        path = datapath + username + "/lists/"
+        if action[:3] == "ADD":
+            match elo.make_list(path + request.forms.get('item') + ".json", request.forms.get('item')):
+                case 'BUSY': pass
+                case 'DUPATH': redirect('/error/' + "LIST_EXISTS") 
+                case 'SUCCESS':
+                    redirect('/list')
 
-@route('/list/make_list')
-def show_ui():
-    if request.get_cookie("user", secret='some-secret-key') != None: 
-        return(template('makelist'))
+        elif action[:3] == "DEL":
+            match elo.delete_list(path + action.split('_')[1] + ".json"):
+                case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
+                case 'BUSY': pass
+                case 'SUCCESS':
+                    redirect('/list')
+
+        elif action[:3] == "RED":
+            redirect('/list/' + action.split('_')[1])
+
     else: 
-        return('Please login or signup to continue')
-    
-@post('/list/make_list')
-def make_name():
-    user=request.get_cookie("user", secret='some-secret-key') 
-    if user!= None: 
-        name=request.forms.get('name')
-        makelist=make_list(datapath + user + "/lists/" + name + ".json", name)
-        print(name)
-        if makelist=="SUCCESS":
-            redirect('/list/' + name)
-        elif makelist=="DUPATH": 
-            return ("This path already exists")
-        else: 
-            return('idk what happened')
-    else: 
-        return('Please login or signup to continue')
-    
-    
+        redirect('/error/' + "NO_USER")
+
+#INDIVIDUAL LISTS MENU
 
 @route('/list/<listname>')
 def show_list(listname):
     if request.get_cookie("user", secret='some-secret-key') != None:
-        user=request.get_cookie("user", secret='some-secret-key')
+        user= request.get_cookie("user", secret='some-secret-key')
         data = elo.view_list(datapath + user + "/lists/" + listname + ".json")
         return template("list", data=data, listname=listname)
     else: 
-        return('Please login or signup to continue')
+        redirect('/error/' + "NO_USER")
+
+@post('/list/<listname>')
+def process_list(listname):
+    action = request.forms.get('action')
+    username = request.get_cookie("user", secret='some-secret-key')
+    if username != None:
+        path = datapath + username + "/lists/" + listname + ".json"
+        if action[:3] == "ADD":
+            match elo.add_item(path, request.forms.get('item')):
+                case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
+                case 'BUSY': pass
+                case 'REDUN_ID': redirect('/error/' + "ITEM_EXISTS") 
+                case 'SUCCESS':
+                    match elo.sort_list(path):
+                        case 'NOPATH': redirect('/error/'  + "FILE_PATH_ERROR")
+                        case 'BUSY': pass
+                        case 'SUCCESS': redirect('/list/' + listname)
+
+        elif action[:3] == "DEL":
+            item = action.split('_')[1]
+            match elo.delete_item(path, item):
+                case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
+                case 'BUSY': pass
+                case 'SUCCESS':
+                    match elo.sort_list(path):
+                        case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
+                        case 'BUSY': pass
+                        case 'SUCCESS': redirect('/list/' + listname)
+    else: 
+        redirect('/error/' + "NO_USER")
+
+#RANKING SYSTEM
 
 @post('/list/<listname>/rank')
 def rank_list(listname):
@@ -138,6 +179,7 @@ def rank_list(listname):
         if action[:3] == "RNK":
             match elo.make_pairs(path):
                 case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR")
+                case 'Z_INDEX' : redirect('/error/' + "ZERO_ELEMENTS")
                 case 'BUSY': pass
                 case 'SUCCESS':
                     pair = elo.get_pair(path)
@@ -162,46 +204,10 @@ def rank_list(listname):
                     else:
                         return template("comparison", pair=pair, listname=listname)
     else: 
-        return('Please login or signup to continue')
+        redirect('/error/' + "NO_USER")
 
+def start():
+    run(debug=True, reloader=True, port=8000)
 
-@post('/list/<listname>/clear')
-def del_list(listname):
-    username = request.get_cookie("user", secret='some-secret-key')
-    if os.remove(datapath + username + "/lists/" + listname + ".json"):
-        redirect('/list')
-    else:
-        redirect('/error/' + "DEL_ERROR")
-
-@post('/list/<listname>')
-def process_list(listname):
-    action = request.forms.get('action')
-    username = request.get_cookie("user", secret='some-secret-key')
-    if username != None:
-        path = datapath + username + "/lists/" + listname + ".json"
-        if action[:3] == "ADD":
-            match elo.add_item(path, request.forms.get('item')):
-                case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
-                case 'BUSY': pass
-                case 'REDUN_ID': redirect('/error/' + "LIST_EXISTS") 
-                case 'SUCCESS':
-                    match elo.sort_list(path):
-                        case 'NOPATH': redirect('/error/'  + "FILE_PATH_ERROR")
-                        case 'BUSY': pass
-                        case 'SUCCESS': redirect('/list/' + listname)
-
-        elif action[:3] == "DEL":
-            item = action.split('_')[1]
-            match elo.delete_item(path, item):
-                case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
-                case 'BUSY': pass
-                case 'SUCCESS':
-                    match elo.sort_list(path):
-                        case 'NOPATH': redirect('/error/' + "FILE_PATH_ERROR") 
-                        case 'BUSY': pass
-                        case 'SUCCESS': redirect('/list/' + listname)
-    else: 
-        return('Please login or signup to continue')
-
-run(debug=True, reloader=True, port=8000)
-
+if __name__ == "__main__":
+    print("attempting to run module as main")

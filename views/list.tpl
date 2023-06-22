@@ -7,6 +7,7 @@
     <title>{{listname}}</title>
 </head>
 <body>
+  <h1><a href="/index">Home</a> | <a href="/list">Lists</a> | <a href="/logout">Logout</a></h1>
   <div class="list_box">
   <h1>{{listname}}</h1>
     <div class="list_action_box">

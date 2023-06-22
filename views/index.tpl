@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link type="text/css" rel="stylesheet" href="/static/error.css">
-    <title>ERROR: {{errortype}}</title>
+    <title>elo_site</title>
 </head>
 <body>
     <div class="errorbox">
-      <h1>ERROR: {{errortype}}</h1>
-      <h2><a href="/index">return home</a> | <a href="{{redirect_link}}">{{redirect_link}}</a></h2>
+      <h1>elo_site</h1>
+      <h2><a href="/login">login</a> | <a href="/login">sign up</a></h2>
     </div>
 </body>
 </html>
-
- 

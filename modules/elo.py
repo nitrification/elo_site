@@ -10,7 +10,7 @@ def make_list(path, id):
     if os.path.exists(path):
         return "DUPATH"
     file = {}
-    file["id"] = id
+    file["id"] = id 
     file["status"] = "STATIC"
     file["index"] = 0
     file["data"] = {}
@@ -49,6 +49,8 @@ def make_pairs(path):
     if file["status"] != "STATIC":
         return "BUSY"
     data, size = file["data"], file["size"]
+    if size <= 0:
+        return "Z_INDEX"
     pairs = []
     keylist = list(data.keys())
     random.shuffle(keylist)
@@ -177,7 +179,6 @@ def sort_list(path):
     return "SUCCESS"
 
 def view_list(path):
-    print("ELO.py: " + path)
     if os.path.exists(path) == False:
         return "NOPATH"
     fp = open(path, 'r')
@@ -187,3 +188,11 @@ def view_list(path):
         return "BUSY"
     return file["data"]
 
+def delete_list(path):
+    if os.path.exists(path) == False:
+        return "NOPATH"
+    os.remove(path)
+    return "SUCCESS"
+
+if __name__ == "__main__":
+    print("attempting to run module as main")

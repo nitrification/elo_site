@@ -12,26 +12,39 @@ h1 {
 }
 
 .comparison_box {
-    text-align: center;
+    width: 500px;
     border: 2px solid black;
+    border-radius: 2px;
+    background-color: white;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 25px;
 }
 
 
 .comparison_box_side {
+    text-align: center;
     float: left;
     width: 50%;
 }
 
 .comparison_button {
-    display: block;
+    display: inline-block;
     border: 2px solid black;
     border-radius: 2px;
     background-color: transparent;
     color: black;
     width: 75%;
     height: 200%;
-
+    text-align: center;
     padding-top: 10px;
     padding-bottom: 10px;
     font-size: 18px;
+}
+
+.comparison_button:hover {
+  background-color: lightblue;
 }
