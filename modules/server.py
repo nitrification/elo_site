@@ -107,7 +107,7 @@ def make_name():
     user=request.get_cookie("user", secret='some-secret-key') 
     if user!= None: 
         name=request.forms.get('name')
-        makelist=make_list(user, name)
+        makelist=make_list(datapath + user + "/lists/" + name + ".json", name)
         print(name)
         if makelist=="SUCCESS":
             redirect('/list/' + name)
