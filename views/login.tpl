@@ -1,19 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en-US">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>login</title>
+    <link type="text/css" rel="stylesheet" href="/static/loginsignup.css">
 </head>
 <body>
-    <h1>Login:</h1>
-    <form method="POST" action="/login">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" placeholder="Username">
-        <br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" placeholder="Password">
-        <br>
-        <input type="submit" name="submit_all" value="submit">
-     </form>
+    <div class="loginbox">
+      <h1>Login:</h1>
+      <form method="post" action="/login">
+          <input type="text"  class="logincredentials" name="username" id="username" placeholder="username">
+          </br>
+          <input type="password" class="logincredentials" name="password" id="password" placeholder="password">
+          </br>
+          <input type="submit" class="submitbutton" name="submit_all" value="submit">
+          <p></p>
+      </form>
+      <h2><a href="/index">return home</a> | <a href="/signup">sign up</a></h2>
+     </div>
 </body>
 </html>
